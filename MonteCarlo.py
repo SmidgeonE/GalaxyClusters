@@ -1,8 +1,6 @@
 # %%
 
-import numpy as np
 import Equations
-from Equations import *
 from Main import *
 
 rng = np.random.default_rng()

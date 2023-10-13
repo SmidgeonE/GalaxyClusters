@@ -5,21 +5,37 @@ from Equations import *
 from astroquery.simbad import Simbad
 import astropy.coordinates as coord
 
-def getClusterData():
+
+def findClusters(saveToFile=False, name='clusterQuery.csv'):
+
+    # Querying to find galaxy clusters
+
+    customSimbad = Simbad()
+
+    qry = ("region(circle, 29.20 -0.214, 0.15d) &"
+           " otypes in ('ClG', 'C?G')")
+    clusters = customSimbad.query_criteria(qry).to_pandas()
+    clusters = clusters.loc[:, ['MAIN_ID', 'RA', 'DEC']]
+
+    print(clusters)
+
+    if saveToFile:
+        clusters.to_csv(name)
+
+    return clusters
+
+
+def getClusterData(ra=227.745, dec=5.761):
     # set up custom query and define which columns we want
     customSimbad = Simbad()
     customSimbad.add_votable_fields('ra(d)', 'dec(d)', 'distance_result', 'otype', 'rv_value', 'z_value')
     customSimbad.remove_votable_fields('coordinates')
 
-    # set RA, Dec and search radius
-    my_ra = 227.745
-    my_dec = 5.761
-
     # use 20 arcmin as an example
     my_radius = '0d20m0s'
 
     # run query
-    result_table = customSimbad.query_region(coord.SkyCoord(my_ra, my_dec, unit='deg'), radius=my_radius)
+    result_table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit='deg'), radius=my_radius)
     df = result_table.to_pandas()
 
     # Select only galaxies
@@ -66,3 +82,5 @@ def CalculateOmegaM(makeGraphs=False):
 
 
 # %%
+
+c = findClusters(saveToFile=True)
