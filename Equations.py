@@ -1,19 +1,27 @@
 import numpy as np
 
 G = 6.67408E-11
-H_0 = 70
+H_0 = 67.80
 Omega_M = 0.15
 Omega_L = 1-Omega_M
 h = H_0 / 100
 Omega_b = 0.0125 / h**2
-
-
-# TO DO: FIX THESE CONSTS
-
 f_gas = 0.152
-f_star = 1
+f_star = 0.015
 M_hse = 12.25E14 * 2E30
 M_gas = f_gas * M_hse
+
+# Errors
+
+dG = 0.0005 * G
+dH_0 = 0.77
+dOmega_M = 0.04
+dOmega_L = dOmega_M
+dOmega_b = 0.001
+df_gas = 0.006
+df_star = 0.005
+dM_hse = 0.49E14 * 2E30
+
 
 
 
