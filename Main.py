@@ -12,20 +12,14 @@ previousQueryTime = time.time()
 
 def findClusters(saveToFile=False, name='clusterQuery.csv'):
 
-    # Querying to find galaxy clusters
+    # Setting up query fields required
 
     customSimbad = Simbad()
-    customSimbad.add_votable_fields('z_value', 'ra', 'dec')
+    customSimbad.add_votable_fields('z_value', 'ra', 'dec', 'dim_majaxis', 'dim_minaxis')
     customSimbad.remove_votable_fields('coordinates')
-
-    qry = ("region(circle, 29.20 -0.214, 0.9d) &"
-           " otypes in ('ClG')")
+    qry = "children > 1000 & otypes in ('ClG')"
     clusters = customSimbad.query_criteria(qry).to_pandas()
-    clusters = clusters.drop(['SCRIPT_NUMBER_ID'], axis=1)
-    clusters = clusters[clusters['Z_VALUE'] < 0.15]
-
-
-    print(clusters)
+    clusters = clusters.dropna()
 
     if saveToFile:
         clusters.to_csv(name)
@@ -33,7 +27,7 @@ def findClusters(saveToFile=False, name='clusterQuery.csv'):
     return clusters
 
 
-def getGalaxiesFromCluster(ra, dec):
+def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     global previousQueryTime
 
     # set up custom query and define which columns we want
@@ -42,26 +36,36 @@ def getGalaxiesFromCluster(ra, dec):
                                     'distance_result', 'otype', 'rv_value', 'z_value')
     customSimbad.remove_votable_fields('coordinates')
 
-    my_radius = '0d2m0s'
+    my_radius = '0d' + str(int(majaxis)) + 'm0s'
+    print("radius : " + str(my_radius))
 
     currentQueryTime = time.time()
 
-    if currentQueryTime - previousQueryTime < 0.5:
+    if currentQueryTime - previousQueryTime < 1.5:
         print("waiting")
-        time.sleep(0.5-currentQueryTime+previousQueryTime)
+        time.sleep(1.5-currentQueryTime+previousQueryTime)
 
-    result_table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)), radius=my_radius)
+    df = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)),
+                                             radius=my_radius).to_pandas()
     previousQueryTime = currentQueryTime
 
-    df = result_table.to_pandas()
-
-    # Select only galaxies
-    gal_df = df[df['OTYPE'] == 'Galaxy']
-
-    return gal_df
+    # Clean up data
 
     # This worked well for the a2029 galaxy
     # return gal_df[(gal_df['Z_VALUE'] < 0.09) * (gal_df['Z_VALUE'] > 0.065)]
+
+    # Were going to cull the data, from our investigations into a2029, we found
+    # z +- 0.013 is a good separation for the orbiting galaxies.
+
+    redshiftDifferenceCutoff = 0.013
+
+    print(pd.Series({c: df[c].unique() for c in df})['OTYPE'])
+
+    gal_df = df[df['OTYPE'] == 'Galaxy']
+    gal_df = gal_df.dropna()
+    gal_df = gal_df[np.abs(gal_df['Z_VALUE'] - clusterZ) <= redshiftDifferenceCutoff]
+
+    return gal_df
 
 
 def CalculateOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
@@ -103,12 +107,15 @@ def CalculateOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
     return Omega_m
 
 
-# c = findClusters(saveToFile=True)
+c = findClusters(saveToFile=True)
 
 clustersSet = pd.read_csv('clusterQuery.csv')
 
 for i in clustersSet.index:
-    clusterData = getGalaxiesFromCluster(clustersSet['RA'][i], clustersSet['DEC'][i])
+    clusterData = getGalaxiesFromCluster(clustersSet['RA'][i],
+                                         clustersSet['DEC'][i],
+                                         clustersSet['GALDIM_MAJAXIS'][i],
+                                         clustersSet['Z_VALUE'][i])
 
     # if len(clusterData.index) < 10:
     #     print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i]))
@@ -117,6 +124,7 @@ for i in clustersSet.index:
 
     print(clusterData)
     CalculateOmegaM(clusterData, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=True)
+    break
 
 
 print("\nFinished Queries")
