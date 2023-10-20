@@ -5,6 +5,7 @@ from astroquery.simbad import Simbad
 import pandas as pd
 import astropy.coordinates as coord
 import time
+import astropy.units as u
 
 previousQueryTime = time.time()
 
@@ -17,11 +18,11 @@ def findClusters(saveToFile=False, name='clusterQuery.csv'):
     customSimbad.add_votable_fields('z_value', 'ra', 'dec')
     customSimbad.remove_votable_fields('coordinates')
 
-    qry = ("region(circle, 29.20 -0.214, 0.3d) &"
-           " otypes in ('ClG', 'C?G')")
+    qry = ("region(circle, 29.20 -0.214, 0.9d) &"
+           " otypes in ('ClG')")
     clusters = customSimbad.query_criteria(qry).to_pandas()
     clusters = clusters.drop(['SCRIPT_NUMBER_ID'], axis=1)
-    # clusters = clusters.loc[:, ['MAIN_ID', 'RA', 'DEC']]
+    clusters = clusters[clusters['Z_VALUE'] < 0.15]
 
 
     print(clusters)
@@ -37,7 +38,7 @@ def getGalaxiesFromCluster(ra, dec):
 
     # set up custom query and define which columns we want
     customSimbad = Simbad()
-    customSimbad.add_votable_fields('ra(d)', 'dec(d)',
+    customSimbad.add_votable_fields('ra(s)', 'dec(s)',
                                     'distance_result', 'otype', 'rv_value', 'z_value')
     customSimbad.remove_votable_fields('coordinates')
 
@@ -49,7 +50,7 @@ def getGalaxiesFromCluster(ra, dec):
         print("waiting")
         time.sleep(0.5-currentQueryTime+previousQueryTime)
 
-    result_table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit='deg'), radius=my_radius)
+    result_table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)), radius=my_radius)
     previousQueryTime = currentQueryTime
 
     df = result_table.to_pandas()
@@ -109,9 +110,10 @@ clustersSet = pd.read_csv('clusterQuery.csv')
 for i in clustersSet.index:
     clusterData = getGalaxiesFromCluster(clustersSet['RA'][i], clustersSet['DEC'][i])
 
-    if len(clusterData.index) < 10:
-        print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i]))
-        continue
+    # if len(clusterData.index) < 10:
+    #     print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i]))
+    #     continue
+
 
     print(clusterData)
     CalculateOmegaM(clusterData, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=True)
