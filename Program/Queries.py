@@ -37,15 +37,13 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     my_radius = '0d' + str(int(majaxis)) + 'm0s'
     currentQueryTime = time.time()
 
-    if currentQueryTime - previousQueryTime < 1.5:
+    if currentQueryTime - previousQueryTime < 3:
         print("waiting")
-        time.sleep(1.5 - currentQueryTime + previousQueryTime)
+        time.sleep(3 - currentQueryTime + previousQueryTime)
         print("commencing")
 
     table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)),
                                    radius=my_radius)
-
-    print("table : " + str(table))
 
     if table is None or len(table) == 0:
         return

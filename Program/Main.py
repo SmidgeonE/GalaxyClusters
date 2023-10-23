@@ -2,11 +2,14 @@ from Program.Queries import *
 
 
 def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
+    global histData
+    global expectedVals
+    numHistBins = 40
 
     # Now we generate some graphs of the cluster
 
     fig2, ax2 = plt.subplots(1, 1)
-    ax2.hist(galaxiesOfCluster['Z_VALUE'], bins=100)
+    ax2.hist(galaxiesOfCluster['Z_VALUE'], bins=numHistBins)
     ax2.set_ylabel('num')
     ax2.set_xlabel('Z_VALUE')
     ax2.set_title('Z Values for ' + nameOfGalaxy)
@@ -17,12 +20,23 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 
     recessionVel = galaxiesOfCluster['RV_VALUE']
     fig, ax = plt.subplots(1, 1)
-    histData = ax.hist(recessionVel, bins=100)
-    ax.set_ylabel('num')
-    ax.set_xlabel('RV_VALUE')
+    histData = ax.hist(recessionVel, bins=numHistBins)
 
     velocityRange = np.linspace(np.min(recessionVel), np.max(recessionVel), len(recessionVel))
     gaussVals, sd = gauss(recessionVel, np.max(histData[0]), velocityRange)
+
+    # Doing Chi squared values, we create an expected values list using the gauss function
+    expectedValsRange = np.linspace(np.min(recessionVel), np.max(recessionVel), numHistBins)
+    expectedVals = gauss(recessionVel, np.max(histData[0]), expectedValsRange)[0]
+
+    ChiVal = np.sum(np.square(histData[0] - expectedVals) / expectedValsRange)
+    print ("chi val : " + str(ChiVal))
+    reducedChi = ChiVal / numHistBins
+
+    ax.set_ylabel('num')
+    ax.set_xlabel('RV_VALUE')
+    ax.set_title('$R_v$ Values for ' + nameOfGalaxy + r"    $ \chi ^2$ = " + str(round(reducedChi, 2)))
+
     ax.plot(velocityRange, gaussVals)
     if makeGraphs:
         plt.show()
@@ -52,7 +66,7 @@ for i in clustersSet.index:
                                                clustersSet['GALDIM_MAJAXIS'][i],
                                                clustersSet['Z_VALUE'][i])
 
-    if galaxiesInCluster is None or len(galaxiesInCluster.index) < 10:
+    if galaxiesInCluster is None or len(galaxiesInCluster.index) < 40:
         print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i]))
         continue
 
