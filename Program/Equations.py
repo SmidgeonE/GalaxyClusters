@@ -5,11 +5,15 @@ H_0 = 67.80
 Omega_M = 0.15
 Omega_L = 1-Omega_M
 h = H_0 / 100
+
+# Parameters to be investigated for procedural generation
+# Although omega_b should vary much, implied by lambdaCDM
+
 Omega_b = 0.0125 / h**2
 f_gas = 0.152
 f_star = 0.015
-M_hse = 12.25E14 * 2E30
-M_gas = f_gas * M_hse
+
+# M_hse = 12.25E14 * 2E30
 
 # Errors
 
@@ -37,6 +41,10 @@ def convertDist(x, unit, to):
         return valInM * 1000
     elif to == "Mpc":
         return valInM * 3.08568E22 * valInM
+
+
+def M_gas(clusterMass):
+    return f_gas * clusterMass
 
 
 def gauss(data, maxCount, range):
