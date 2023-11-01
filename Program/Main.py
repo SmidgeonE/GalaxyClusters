@@ -65,18 +65,21 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
         plt.show()
 
     # Removing culled data from the data pool for calculations...
+    numOfCulledGals = 0
 
-    for point in excludedDataMask:
-        if point is 0:
+    for point in excludedData:
+        if point == 0:
             continue
 
-        for galaxy in galaxiesOfCluster:
-            if np.abs(galaxy['RV_VALUE']-point) <= barWidth:
-                galaxy['Z_VALUE'] = np.nan
-                galaxy['RV_VALUE'] = np.nan
+        for index, galaxy in galaxiesOfCluster.iterrows():
+            if np.abs(float(galaxy['RV_VALUE'])-point) <= barWidth / 2:
+                galaxiesOfCluster = galaxiesOfCluster[galaxiesOfCluster.index != index]
                 print("culling galaxy")
+                numOfCulledGals += 1
 
-    # Recalculate standard deviation with new dataset..
+    print("culled galaxies: " + str(numOfCulledGals))
+
+    # Recalculate standard deviation with new dataset...
 
     sd = np.nanstd(galaxiesOfCluster['RV_VALUE'])
 
@@ -102,8 +105,8 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 clustersSet = pd.read_csv('Data/clusterQuery.csv')
 
 for i in clustersSet.index:
-    # if clustersSet['MAIN_ID'][i] != "M  60":
-    #     continue
+    if clustersSet['MAIN_ID'][i] != "M  60":
+        continue
 
 
     galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
@@ -113,6 +116,7 @@ for i in clustersSet.index:
 
     if galaxiesInCluster is None or len(galaxiesInCluster.index) < 40:
         print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i]))
+        print(str(len(galaxiesInCluster.index)))
         continue
 
     CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=True)

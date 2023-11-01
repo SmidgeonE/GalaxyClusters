@@ -7,6 +7,7 @@ import time
 import astropy.units as u
 
 previousQueryTime = time.time()
+acceptableTypes = ['GinPair', 'Galaxy', 'GtowardsCl', 'Compact_Gr_G', 'GroupG', 'Star', 'GlobCluster']
 
 
 def findClusters(saveToFile=False, name='clusterQuery.csv'):
@@ -61,12 +62,10 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
 
     redshiftDifferenceCutoff = 0.013
 
-    print(pd.Series({c: df[c].unique() for c in df})['OTYPE'])
-
-    # gal_df = df[df['OTYPE'] == 'Galaxy']
-    gal_df = df
-
+    gal_df = df[df['OTYPE'].isin(acceptableTypes)]
     gal_df = gal_df.dropna()
     gal_df = gal_df[np.abs(gal_df['Z_VALUE'] - clusterZ) <= redshiftDifferenceCutoff]
+
+    print(pd.Series({c: df[c].unique() for c in df})['OTYPE'])
 
     return gal_df
