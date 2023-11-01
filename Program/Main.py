@@ -115,7 +115,8 @@ for i in clustersSet.index:
                                                clustersSet['Z_VALUE'][i])
 
     if galaxiesInCluster is None or len(galaxiesInCluster.index) < 40:
-        print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i]))
+        print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i] +
+                                                                      ". \n Num of galaxies in cluster:"))
         print(str(len(galaxiesInCluster.index)))
         continue
 
