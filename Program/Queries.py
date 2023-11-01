@@ -7,7 +7,9 @@ import time
 import astropy.units as u
 
 previousQueryTime = time.time()
-acceptableTypes = ['GinPair', 'Galaxy', 'GtowardsCl', 'Compact_Gr_G', 'GroupG', 'Star', 'GlobCluster']
+acceptableTypes = ['GinPair', 'Galaxy', 'GtowardsCl', 'Compact_Gr_G', 'GroupG', 'LowSurfBrghtG',
+                   'GlobCluster', 'RadioG', 'EmissionG', 'BlueCompactG', 'StarburstG', 'HIIG', 'AGN',
+                   'Seyfert', 'Seyfert1', 'Seyfert2', 'LINER', 'QSO', 'Blazar', 'BLLac']
 
 
 def findClusters(saveToFile=False, name='clusterQuery.csv'):
@@ -39,9 +41,7 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     currentQueryTime = time.time()
 
     if currentQueryTime - previousQueryTime < 3:
-        print("waiting")
         time.sleep(3 - currentQueryTime + previousQueryTime)
-        print("commencing")
 
     table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)),
                                    radius=my_radius)
@@ -66,6 +66,6 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     gal_df = gal_df.dropna()
     gal_df = gal_df[np.abs(gal_df['Z_VALUE'] - clusterZ) <= redshiftDifferenceCutoff]
 
-    print(pd.Series({c: df[c].unique() for c in df})['OTYPE'])
+    # print(pd.Series({c: df[c].unique() for c in df})['OTYPE'])
 
     return gal_df

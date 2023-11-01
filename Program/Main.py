@@ -14,8 +14,9 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
     ax2.set_ylabel('num')
     ax2.set_xlabel('Z_VALUE')
     ax2.set_title('Z Values for ' + nameOfGalaxy)
-    if makeGraphs:
-        plt.show()
+
+    # if makeGraphs:
+    #     plt.show()
 
     # Now we plot a gaussian on the histogram for recession vel
 
@@ -74,10 +75,8 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
         for index, galaxy in galaxiesOfCluster.iterrows():
             if np.abs(float(galaxy['RV_VALUE'])-point) <= barWidth / 2:
                 galaxiesOfCluster = galaxiesOfCluster[galaxiesOfCluster.index != index]
-                print("culling galaxy")
                 numOfCulledGals += 1
 
-    print("culled galaxies: " + str(numOfCulledGals))
 
     # Recalculate standard deviation with new dataset...
 
@@ -92,6 +91,7 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
     Omega_m = Omega_b / f_b
 
     print("\nDATA FOR : " + nameOfGalaxy)
+    print("--- omega_rv: " + str(sd * 1000))
     print("--- M_200 value: " + str(M_200val))
     print("--- omega m : " + str(Omega_m))
 
@@ -105,8 +105,8 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 clustersSet = pd.read_csv('Data/clusterQuery.csv')
 
 for i in clustersSet.index:
-    if clustersSet['MAIN_ID'][i] != "M  60":
-        continue
+    # if clustersSet['MAIN_ID'][i] != "M  60":
+    #     continue
 
 
     galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
@@ -114,14 +114,20 @@ for i in clustersSet.index:
                                                clustersSet['GALDIM_MAJAXIS'][i],
                                                clustersSet['Z_VALUE'][i])
 
-    if galaxiesInCluster is None or len(galaxiesInCluster.index) < 40:
+    if galaxiesInCluster is None:
+        print("\nCluster Data is empty!")
+        continue
+
+    if len(galaxiesInCluster.index) < 20:
         print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i] +
-                                                                      ". \n Num of galaxies in cluster:"))
+                                                                      ". \nNum of galaxies in cluster:"))
         print(str(len(galaxiesInCluster.index)))
         continue
 
     CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=True)
-    print("")
+    print("------------------------\n")
+
+    break
 
 
 print("\nFinished Queries")
