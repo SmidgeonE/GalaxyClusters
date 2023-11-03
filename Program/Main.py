@@ -15,8 +15,8 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
     ax2.set_xlabel('Z_VALUE')
     ax2.set_title('Z Values for ' + nameOfGalaxy)
 
-    # if makeGraphs:
-    #     plt.show()
+    if makeGraphs:
+        plt.show()
 
     # Now we plot a gaussian on the histogram for recession vel
 
@@ -86,12 +86,13 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 
     averageZ = galaxiesOfCluster['Z_VALUE'].mean()
     M_200val = M_200(sd * 1000, averageZ)
-    f_ourGas = M_gas(M_200val) / M_200val
+    f_ourGas = M_gas() / M_200val
     f_b = f_star + f_ourGas
     Omega_m = Omega_b / f_b
 
     print("\nDATA FOR : " + nameOfGalaxy)
-    print("--- omega_rv: " + str(sd * 1000))
+    print("--- rv mean: " + str(np.mean(recessionVel)))
+    print("--- sigma_rv: " + str(sd * 1000))
     print("--- M_200 value: " + str(M_200val))
     print("--- omega m : " + str(Omega_m))
 
@@ -105,8 +106,8 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 clustersSet = pd.read_csv('Data/clusterQuery.csv')
 
 for i in clustersSet.index:
-    # if clustersSet['MAIN_ID'][i] != "M  60":
-    #     continue
+    if clustersSet['MAIN_ID'][i] != "ACO  2029":
+        continue
 
 
     galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],

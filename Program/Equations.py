@@ -1,19 +1,25 @@
 import numpy as np
+import Program.fGas as fGas
 
 G = 6.67408E-11
 H_0 = 67.80
 Omega_M = 0.15
 Omega_L = 1-Omega_M
 h = H_0 / 100
+M_sun = 2E30
 
 # Parameters to be investigated for procedural generation
-# Although omega_b should vary much, implied by lambdaCDM
+# Although omega_b shouldnt vary much, implied by lambdaCDM
 
 Omega_b = 0.0125 / h**2
 f_gas = 0.152
 f_star = 0.015
 
-# M_hse = 12.25E14 * 2E30
+
+# parameters from paper
+
+f_paperGas = 0.152
+M_hse = 12.25E14 * 2E30
 
 # Errors
 
@@ -43,8 +49,8 @@ def convertDist(x, unit, to):
         return valInM * 3.08568E22 * valInM
 
 
-def M_gas(clusterMass):
-    return f_gas * clusterMass
+def M_gas(z, M):
+    return fGas.f_gasFunc((z, M), fGas.f_gas0, fGas.s, fGas.k) * M_hse
 
 
 def gauss(data, maxCount, range):

@@ -7,7 +7,7 @@ import time
 import astropy.units as u
 
 previousQueryTime = time.time()
-acceptableTypes = ['GinPair', 'Galaxy', 'GtowardsCl', 'Compact_Gr_G', 'GroupG', 'LowSurfBrghtG',
+acceptableTypes = ['GinPair', 'Galaxy', 'Compact_Gr_G', 'GroupG', 'LowSurfBrghtG',
                    'GlobCluster', 'RadioG', 'EmissionG', 'BlueCompactG', 'StarburstG', 'HIIG', 'AGN',
                    'Seyfert', 'Seyfert1', 'Seyfert2', 'LINER', 'QSO', 'Blazar', 'BLLac']
 
@@ -60,7 +60,7 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     # Were going to cull the data, from our investigations into a2029, we found
     # z +- 0.013 is a good separation for the orbiting galaxies.
 
-    redshiftDifferenceCutoff = 0.013
+    redshiftDifferenceCutoff = 0.011
 
     gal_df = df[df['OTYPE'].isin(acceptableTypes)]
     gal_df = gal_df.dropna()
