@@ -1,7 +1,5 @@
-from matplotlib import pyplot as plt
 from Program.Equations import *
 from astroquery.simbad import Simbad
-import pandas as pd
 import astropy.coordinates as coord
 import time
 import astropy.units as u
@@ -60,7 +58,8 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     # Were going to cull the data, from our investigations into a2029, we found
     # z +- 0.013 is a good separation for the orbiting galaxies.
 
-    redshiftDifferenceCutoff = 0.011
+    redshiftDifferenceCutoff = 0.013
+    print("b")
 
     gal_df = df[df['OTYPE'].isin(acceptableTypes)]
     gal_df = gal_df.dropna()

@@ -1,4 +1,5 @@
-from Program.Equations import *
+from Program.Constants import f_gas, M_hse, dG, dH_0, dOmega_M, dOmega_b, df_gas, \
+    df_star, dM_hse
 from Main import *
 
 rng = np.random.default_rng()

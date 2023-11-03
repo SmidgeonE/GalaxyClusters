@@ -1,5 +1,7 @@
-import numpy as np
+from Program.Constants import Omega_b, f_star
 from Program.Queries import *
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
@@ -107,8 +109,8 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 clustersSet = pd.read_csv('Data/clusterQuery.csv')
 
 for i in clustersSet.index:
-    if clustersSet['MAIN_ID'][i] != "ACO  2029":
-        continue
+    # if clustersSet['MAIN_ID'][i] != "ACO  2029":
+    #     continue
 
 
     galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
