@@ -1,9 +1,12 @@
 import pandas as pd
 from scipy import optimize
 from Program.Equations import *
+import matplotlib.pyplot as plt
 
 
 dataDir = "Data/Mantzetal.csv"
+# dataDir = "Data/Eckert.csv"
+
 data = pd.read_csv(dataDir)
 
 # Removing the asterisked values, they are described in the paper as being inaccurate.
@@ -21,10 +24,16 @@ def f_gasFunc(zM, f_gas0, s, k):
 x = optimize.curve_fit(f_gasFunc, [data['Redshift'], np.array(data['M_tot * 10^14 * M_sun']) * 10E14 * M_sun],
                    data['f_gas'])[0]
 
-
 # These constants seem to be correct, the f_gas0 is 0.14 where Majmudar uses 0.15.
 
 f_gas0 = x[0]
 s = x[1]
 k = x[2]
 
+print(x)
+
+fig, ax = plt.subplots(1, 1)
+#
+# massRange = np.linspace(0.1, 10) * 10E45
+#
+# ax.plot(massRange, f_gasFunc())

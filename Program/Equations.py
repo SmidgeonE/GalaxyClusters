@@ -49,8 +49,8 @@ def convertDist(x, unit, to):
         return valInM * 3.08568E22 * valInM
 
 
-def M_gas(z, M):
-    return fGas.f_gasFunc((z, M), fGas.f_gas0, fGas.s, fGas.k) * M_hse
+def F_gas(z, M):
+    return fGas.f_gasFunc((z, M), fGas.f_gas0, fGas.s, fGas.k)
 
 
 def gauss(data, maxCount, range):
