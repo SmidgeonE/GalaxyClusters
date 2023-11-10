@@ -44,19 +44,21 @@ for i, row in df.iterrows():
 
 
     M_gas = float(row['f_gas']) * (float(row['Mhse'])) * 1E14 * M_sun
-    f_gas = M_gas / M_200(np.std(galaxiesInCluster['RV_VALUE']) * 1000, row['Redshift'])
+    m_200Val = M_200(np.std(galaxiesInCluster['RV_VALUE']) * 1000, row['Redshift'])
+    # TO DO: ADD m_200 ERROR PROP:
+    m_200Err = 0.01 * m_200Val
+    f_gas = M_gas / m_200Val
     f_b = f_star + f_gas
     Omega_m = Omega_b / f_b
     Omega_MVals[i] = Omega_m
-    err = MonteCarloErr()
+    err = MonteCarloErr(f_gas, row['f_gasErr'], m_200Val, m_200Err, row['Mhse'], row['MhseErr'])
 
     print("\nDATA FOR : " + row['Name'])
     print("--- f_gas: " + str(f_gas))
     print("--- M_tot value: " + str(row['M_tot * 10^14 * M_sun'] * 1E14 * M_sun))
     print("--- sigma_v error: " + str(Bootstrap(galaxiesInCluster)))
     print("--- omega m : " + str(Omega_m))
-    print("\n--- Monte Carlo For Omega_M:")
-    print()
+    print("\n--- Monte Carlo For Omega_M: " + str(err))
     print("-------------------------\n")
 
     numHistBins = 20
