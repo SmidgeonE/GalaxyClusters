@@ -1,30 +1,29 @@
-from Program.Constants import f_gas, M_hse, dG, dH_0, dOmega_M, dOmega_b, df_gas, \
-    df_star, dM_hse
+from Constants import *
 from Main import *
 
 rng = np.random.default_rng()
-
 
 def generateMCArrays(mean, sd):
     return rng.lognormal(np.log(mean), sd/mean, 100)
 
 
-# Parameters to be Monte-Carlo'd Overwritten
+def MonteCarloErr(self, f_gas, df_gas, M_200, dM_200, M_hse, dM_hse):
+    # Parameters to be Monte-Carlo'd Overwritten
 
-G = generateMCArrays(G, dG)
-H_0 = generateMCArrays(H_0, dH_0)
-Omega_M = generateMCArrays(Omega_M, dOmega_M)
-Omega_L = 1 - Omega_M
-h = H_0 / 100
-Omega_b = generateMCArrays(Omega_b, dOmega_b)
-f_gas = generateMCArrays(f_gas, df_gas)
-f_star = generateMCArrays(f_star, df_star)
-M_hse = generateMCArrays(M_hse, dM_hse)
-M_gas = f_gas * M_hse
+    self.Omega_b = generateMCArrays(self.Omega_b, dOmega_b)
+    self.f_star = generateMCArrays(self.f_star, df_star)
 
-# Now we have overwritten the values to be arrays, we can run the calculation again..
+    M_hse = generateMCArrays(M_hse, dM_hse)
+    f_gas = generateMCArrays(f_gas, df_gas)
+    M_200 = generateMCArrays(M_200, dM_200)
 
-mVals = CalculateAndPlotOmegaM()
+    # Now we have overwritten the values to be arrays, we can run the calculation again...
 
-print("Monte Carlo Mean for Omega M : " + str(np.mean(mVals)))
-print("Monte Carlo Error for Omega M : " + str(np.std(mVals)))
+    m_Gas = f_gas * M_hse
+    f_ourGas = m_Gas / M_200
+    f_b = f_star + f_ourGas
+    Omega_m = Omega_b / f_b
+
+
+    print("Monte Carlo Mean for Omega M : " + str(np.mean(Omega_m)))
+    print("Monte Carlo Error for Omega M : " + str(np.std(Omega_m)))

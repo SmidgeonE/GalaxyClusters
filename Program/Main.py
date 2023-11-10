@@ -1,5 +1,6 @@
 from Program.Constants import Omega_b, f_star
 from Program.Queries import *
+from Program.bootstrap import *
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -92,12 +93,17 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
     f_b = f_star + f_ourGas
     Omega_m = Omega_b / f_b
 
+    error = Bootstrap(galaxiesOfCluster)
+
     print("\nDATA FOR : " + nameOfGalaxy)
     print("--- f_gas: " + str(f_ourGas))
     print("--- rv mean: " + str(np.mean(recessionVel)))
-    print("--- sigma_rv: " + str(sd * 1000))
+    print("--- sigma_rv: " + str(sd))
+    print("--- sigma_rv error : " + str(error))
     print("--- M_200 value: " + str(M_200val))
     print("--- omega m : " + str(Omega_m))
+
+
 
     return Omega_m
 
@@ -107,10 +113,11 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 # c = findClusters(saveToFile=True)
 
 clustersSet = pd.read_csv('Data/clusterQuery.csv')
+omega_M = np.zeros(len(clustersSet.index))
 
 for i in clustersSet.index:
-    if clustersSet['MAIN_ID'][i] != "ACO  2029":
-        continue
+    # if clustersSet['MAIN_ID'][i] != "ACO  2029":
+    #     continue
 
 
     galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
@@ -128,9 +135,8 @@ for i in clustersSet.index:
         print(str(len(galaxiesInCluster.index)))
         continue
 
-    CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=True)
+    omega_M[i] = CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=True)
     print("------------------------\n")
-
     break
 
 
