@@ -33,11 +33,10 @@ f_gas0 = x[0]
 s = x[1]
 k = x[2]
 
-
 def plotParameters():
 
     fig, ax = plt.subplots(1, 1)
-    massRange = np.linspace(0.1, 5) * 10E45
+    massRange = np.linspace(0.1, 7) * 10E45
     zVals = np.linspace(0.03, 0.12, 5)
 
     for val in zVals:
@@ -50,6 +49,9 @@ def plotParameters():
     ax.scatter(data['M_tot * 10^14 * M_sun'] * 10E14 * M_sun, data['f_gas'])
 
     plt.show()
+
+
+plotParameters()
 
 
 

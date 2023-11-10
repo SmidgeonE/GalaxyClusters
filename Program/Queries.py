@@ -36,6 +36,10 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     customSimbad.remove_votable_fields('coordinates')
 
     my_radius = '0d' + str(int(majaxis)) + 'm0s'
+
+    print(str(my_radius))
+    print(str(ra))
+    print(str(dec))
     currentQueryTime = time.time()
 
     if currentQueryTime - previousQueryTime < 3:
@@ -59,7 +63,6 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     # z +- 0.013 is a good separation for the orbiting galaxies.
 
     redshiftDifferenceCutoff = 0.013
-    print("b")
 
     gal_df = df[df['OTYPE'].isin(acceptableTypes)]
     gal_df = gal_df.dropna()
