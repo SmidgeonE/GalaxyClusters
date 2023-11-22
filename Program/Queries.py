@@ -16,7 +16,7 @@ def findClusters(saveToFile=False, name='clusterQuery.csv'):
     customSimbad = Simbad()
     customSimbad.add_votable_fields('z_value', 'ra', 'dec', 'dim_majaxis', 'dim_minaxis')
     customSimbad.remove_votable_fields('coordinates')
-    qry = "children > 1000 & otypes in ('ClG')"
+    qry = "children > 100 & otypes in ('ClG')"
     clusters = customSimbad.query_criteria(qry).to_pandas()
     clusters = clusters.dropna()
 

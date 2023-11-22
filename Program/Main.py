@@ -125,9 +125,9 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 
 ## MAIN PROGRAM LOOP
 
-# c = findClusters(saveToFile=True)
 
-clustersSet = pd.read_csv('Data/clusterQuery.csv')
+# clustersSet = pd.read_csv('Data/clusterQuery.csv')
+clustersSet = pd.read_csv('Data/clusterQuery100children.csv')
 omega_M = np.zeros(len(clustersSet.index))
 
 for i in clustersSet.index:
