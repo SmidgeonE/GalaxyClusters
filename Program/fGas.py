@@ -33,6 +33,7 @@ f_gas0 = x[0]
 s = x[1]
 k = x[2]
 
+
 def plotParameters():
 
     fig, ax = plt.subplots(1, 1)
@@ -49,9 +50,6 @@ def plotParameters():
     ax.scatter(data['M_tot * 10^14 * M_sun'] * 10E14 * M_sun, data['f_gas'])
 
     plt.show()
-
-
-plotParameters()
 
 
 

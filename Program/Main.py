@@ -1,8 +1,12 @@
+import numpy as np
+
 from Program.Constants import Omega_b, f_star
 from Program.Queries import *
 from Program.bootstrap import *
 import matplotlib.pyplot as plt
 import pandas as pd
+import Program.MonteCarlo as mc
+from Program.bootstrap import BootstrapErr
 
 
 def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
@@ -88,22 +92,33 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
     # Apply culled data to equations to find mass of cluster + omega_m
 
     averageZ = galaxiesOfCluster['Z_VALUE'].mean()
+    sigmaRvError = BootstrapErr(galaxiesOfCluster)
+
     M_200val = M_200(sd * 1000, averageZ)
+    M_200err = mc.M_200Err(averageZ, sd * 1000, sigmaRvError * 1000)
+
     f_ourGas = F_gas(averageZ, M_200val)
+    f_ourGasErr = mc.f_gasErr(averageZ, M_200val, M_200err)
+
     f_b = f_star + f_ourGas
     Omega_m = Omega_b / f_b
 
-    error = Bootstrap(galaxiesOfCluster)
 
-    print("\nDATA FOR : " + nameOfGalaxy)
+    print("\nDATA FOR: " + nameOfGalaxy)
     print("--- f_gas: " + str(f_ourGas))
+    print("--- f_gas error:" + str(f_ourGasErr))
     print("--- rv mean: " + str(np.mean(recessionVel)))
     print("--- sigma_rv: " + str(sd))
-    print("--- sigma_rv error : " + str(error))
+    print("--- sigma_rv error: " + str(sigmaRvError))
     print("--- M_200 value: " + str(M_200val))
-    print("--- omega m : " + str(Omega_m))
+    print("--- M_200 error: " + str(M_200err))
+    print("--- Omega_M: " + str(Omega_m))
+    print("--- Omega_M MC error: " + str(mc.OmegaMErrorGeneral(f_ourGas, f_ourGasErr)))
 
+    # If the Chi value is too large, we will ignore this data set
 
+    if reducedChi > 1.5:
+        return np.nan
 
     return Omega_m
 
@@ -116,9 +131,8 @@ clustersSet = pd.read_csv('Data/clusterQuery.csv')
 omega_M = np.zeros(len(clustersSet.index))
 
 for i in clustersSet.index:
-    # if clustersSet['MAIN_ID'][i] != "ACO  2029":
-    #     continue
-
+    if clustersSet['MAIN_ID'][i] != "ACO  2029":
+        continue
 
     galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
                                                clustersSet['DEC'][i],
@@ -137,7 +151,12 @@ for i in clustersSet.index:
 
     omega_M[i] = CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=True)
     print("------------------------\n")
-    break
 
+
+# If we skipped over some values, we need to ensure we're not counting the leftover zeros
+omega_M = omega_M[omega_M != 0]
 
 print("\nFinished Queries")
+print("Final Results: ")
+print("Overall Omega_M: " + str(np.nanmean(omega_M)))
+print("Overall Omega_M standard deviation: " + str(np.nanstd(omega_M)))

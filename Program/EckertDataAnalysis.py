@@ -52,14 +52,14 @@ for i, row in df.iterrows():
     f_b = f_star + f_gas
     Omega_m = Omega_b / f_b
     Omega_MVals[i] = Omega_m
-    MCErrors[i] = MonteCarloErr(f_gas, row['f_gasErr'],
-                                m_200Val, m_200Err,
-                                row['Mhse'] * 1E14 * M_sun, row['MhseErr'] * 1E14 * M_sun)
+    MCErrors[i] = OmegaMErrorEckert(f_gas, row['f_gasErr'],
+                                    m_200Val, m_200Err,
+                                    row['Mhse'] * 1E14 * M_sun, row['MhseErr'] * 1E14 * M_sun)
 
     print("\nDATA FOR : " + row['Name'])
     print("--- f_gas: " + str(f_gas))
     print("--- M_tot value: " + str(row['M_tot * 10^14 * M_sun'] * 1E14 * M_sun))
-    print("--- sigma_v error: " + str(Bootstrap(galaxiesInCluster)))
+    print("--- sigma_v error: " + str(BootstrapErr(galaxiesInCluster)))
     print("--- omega m : " + str(Omega_m))
     print("\n--- Monte Carlo For Omega_M: " + str(MCErrors[i]))
     print("-------------------------\n")

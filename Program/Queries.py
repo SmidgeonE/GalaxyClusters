@@ -37,9 +37,6 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
 
     my_radius = '0d' + str(int(majaxis)) + 'm0s'
 
-    print(str(my_radius))
-    print(str(ra))
-    print(str(dec))
     currentQueryTime = time.time()
 
     if currentQueryTime - previousQueryTime < 3:
