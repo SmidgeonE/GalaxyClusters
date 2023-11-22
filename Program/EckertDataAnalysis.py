@@ -10,6 +10,7 @@ from Program.MonteCarlo import *
 dir = "Data/Eckert.csv"
 df = pd.read_csv(dir)
 Omega_MVals = np.zeros(len(df.index))
+MCErrors = np.zeros(len(df.index))
 
 ra = ['12 57 11.6', '13 48 50.48', '15 10 56.2', '15 58 14.38', '17 12 15.04',
       '19 20 45.3', '03 42 39.6', '04 31 11.9', '08 17 24.5', '00 41 36.21']
@@ -51,14 +52,16 @@ for i, row in df.iterrows():
     f_b = f_star + f_gas
     Omega_m = Omega_b / f_b
     Omega_MVals[i] = Omega_m
-    err = MonteCarloErr(f_gas, row['f_gasErr'], m_200Val, m_200Err, row['Mhse'], row['MhseErr'])
+    MCErrors[i] = MonteCarloErr(f_gas, row['f_gasErr'],
+                                m_200Val, m_200Err,
+                                row['Mhse'] * 1E14 * M_sun, row['MhseErr'] * 1E14 * M_sun)
 
     print("\nDATA FOR : " + row['Name'])
     print("--- f_gas: " + str(f_gas))
     print("--- M_tot value: " + str(row['M_tot * 10^14 * M_sun'] * 1E14 * M_sun))
     print("--- sigma_v error: " + str(Bootstrap(galaxiesInCluster)))
     print("--- omega m : " + str(Omega_m))
-    print("\n--- Monte Carlo For Omega_M: " + str(err))
+    print("\n--- Monte Carlo For Omega_M: " + str(MCErrors[i]))
     print("-------------------------\n")
 
     numHistBins = 20
@@ -77,6 +80,7 @@ for i, row in df.iterrows():
 FinalValuesDf = pd.DataFrame(df['Name'].values, Omega_MVals)
 print("Mean Omega_M : " + str(np.nanmean(Omega_MVals)))
 print("Standard Dev of Omega_M :" + str(np.nanstd(Omega_MVals)))
+print("Monte Carlo Error for Omega_M : " + str(np.nanmean(MCErrors)))
 
 
 

@@ -4,7 +4,7 @@ from Program.Main import *
 rng = np.random.default_rng()
 
 def generateMCArrays(mean, sd):
-    return rng.lognormal(np.log(mean), sd/mean, 100)
+    return rng.lognormal(np.log(mean), sd/mean, 1000)
 
 
 def MonteCarloErr(f_gas, df_gas, M_200, dM_200, M_hse, dM_hse):
