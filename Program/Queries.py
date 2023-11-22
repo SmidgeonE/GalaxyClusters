@@ -46,8 +46,8 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     try:
         table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)),
                                           radius=my_radius)
-    except ConnectionError:
-        print(" ### Connection Timeout")
+    except:
+        print("     ### Connection Timeout ###")
         return
 
     if table is None or len(table) == 0:

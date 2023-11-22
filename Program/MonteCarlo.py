@@ -1,7 +1,7 @@
 import numpy as np
 
 import Program.Constants as c
-from Program.Main import *
+from Program.Equations import *
 
 rng = np.random.default_rng()
 

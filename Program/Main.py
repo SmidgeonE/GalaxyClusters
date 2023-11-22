@@ -131,8 +131,8 @@ clustersSet = pd.read_csv('Data/clusterQuery.csv')
 omega_M = np.zeros(len(clustersSet.index))
 
 for i in clustersSet.index:
-    if clustersSet['MAIN_ID'][i] != "ACO  2029":
-        continue
+    # if clustersSet['MAIN_ID'][i] != "ACO  2029":
+    #     continue
 
     galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
                                                clustersSet['DEC'][i],
@@ -141,12 +141,14 @@ for i in clustersSet.index:
 
     if galaxiesInCluster is None:
         print("\nCluster Data is empty!")
+        print("------------------------\n")
         continue
 
     if len(galaxiesInCluster.index) < 20:
         print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i] +
                                                                       ". \nNum of galaxies in cluster:"))
         print(str(len(galaxiesInCluster.index)))
+        print("------------------------\n")
         continue
 
     omega_M[i] = CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=True)
@@ -158,5 +160,6 @@ omega_M = omega_M[omega_M != 0]
 
 print("\nFinished Queries")
 print("Final Results: ")
-print("Overall Omega_M: " + str(np.nanmean(omega_M)))
-print("Overall Omega_M standard deviation: " + str(np.nanstd(omega_M)))
+print("--- Overall Omega_M: " + str(np.nanmean(omega_M)))
+print("--- Overall Omega_M standard deviation: " + str(np.nanstd(omega_M)))
+
