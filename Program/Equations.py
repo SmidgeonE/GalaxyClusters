@@ -31,22 +31,22 @@ def gauss(data, maxCount, range):
     return maxCount * np.exp(-0.5 * (range-mean)**2 / sd**2), sd
 
 
-def M_200(sigma_v, z):
-    return np.sqrt(81 / (800 * G ** 3 * np.pi * rho_z(z))) * sigma_v**3
+def M_200(sigma_v, z, omega_M=Omega_M):
+    return np.sqrt(81 / (800 * G ** 3 * np.pi * rho_z(z, omega_M))) * sigma_v**3
 
 
-def R_200(sigma_v, z):
-    return np.cbrt(3*M_200(sigma_v, z) / (800 * np.pi * rho_z(z)))
+def R_200(sigma_v, z, omega_M=Omega_M):
+    return np.cbrt(3*M_200(sigma_v, z, omega_M) / (800 * np.pi * rho_z(z, omega_M)))
 
 
-def rho_z(z):
+def rho_z(z, omega_M):
     # print("rho_C : " + str(3*(H(z)**2) / (8*np.pi*G)))
-    return 3*(H(z)**2) / (8 * np.pi * G)
+    return 3*(H(z, omega_M)**2) / (8 * np.pi * G)
 
 
-def H(z):
-    print("In H, the omega value is " + str(Omega_M))
+def H(z, omega_M):
+    print("In H, the omega value is " + str(omega_M))
     # print("H_z :" + str(H_0 * np.sqrt(Omega_M * (1+z)**3 + Omega_L) * 3.08568E22 * 1000))
-    return H_0 * np.sqrt(Omega_M * (1 + z) ** 3 + Omega_L) / 3.08568E22 * 1000
+    return H_0 * np.sqrt(omega_M * (1 + z) ** 3 + (1-omega_M)) / 3.08568E22 * 1000
 
 

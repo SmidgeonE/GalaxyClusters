@@ -34,8 +34,7 @@ cutoffLower = [0.0325, 0.055, 0.07, 0.08, 0.0725, 0.0425, 0.05, 0.05, 0.05, 0.04
 # print(np.std(Omega_m))
 
 
-def AnalyseData():
-    print(Omega_M)
+def AnalyseData(newOmega_M=Omega_M):
     for i, row in df.iterrows():
         clusterDir = "Data/GalaxySets/" + str(row['Name']) + ".csv"
 
@@ -67,7 +66,7 @@ def AnalyseData():
         M_gas = float(row['f_gas']) * (float(row['Mhse'])) * 1E14 * M_sun
 
 
-        m_200Val = M_200(np.std(galaxiesInCluster['RV_VALUE']) * 1000, row['Redshift'])
+        m_200Val = M_200(np.std(galaxiesInCluster['RV_VALUE']) * 1000, row['Redshift'], omega_M=newOmega_M)
         m_200Err = M_200Err(row['Redshift'], np.std(galaxiesInCluster['RV_VALUE']), BootstrapErr(galaxiesInCluster))
 
         f_gas = M_gas / m_200Val
@@ -108,20 +107,24 @@ def AnalyseData():
     return meanOmegaM, stdOmegaM, mcError
 
 
-rangeOfOmegaM = np.linspace(0.05, 0.9, 10)
-results = np.zeros((10, 3))
+def VaryOmegaM():
+    rangeOfOmegaM = np.linspace(0.05, 0.9, 10)
+    results = np.zeros((10, 3))
 
-for i, val in enumerate(rangeOfOmegaM):
-    global Omega_M
+    for i, val in enumerate(rangeOfOmegaM):
+        results[i, :] = AnalyseData(newOmega_M=val)
 
-    Omega_M = val
-    results[i, :] = AnalyseData()
-
-
-pd.DataFrame(results).to_csv("Data/variedOmegaM.csv")
+    pd.DataFrame(results).to_csv("Data/variedOmegaM.csv")
 
 
-plt.errorbar(results[:, 0], rangeOfOmegaM, xerr=results[:, 1])
+plt.style.use(['science', 'notebook', 'grid'])
+results = pd.read_csv("Data/variedOmegaM.csv")
+
+plt.errorbar(np.linspace(0.05, 0.9, 10), results['0'], marker='x', capsize=5, yerr=results['2'])
+plt.ylabel(r'$\Omega_{m}$ Calculated')
+plt.xlabel(r'$\Omega_{m}$ Assumed')
+plt.title(r'$\Omega_{m}$ Calculated against the assumed value.')
+plt.show()
 
 
 
