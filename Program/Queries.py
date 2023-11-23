@@ -1,8 +1,10 @@
+import pandas as pd
 from Program.Equations import *
 from astroquery.simbad import Simbad
 import astropy.coordinates as coord
 import time
 import astropy.units as u
+import os
 
 previousQueryTime = time.time()
 acceptableTypes = ['GinPair', 'Galaxy', 'Compact_Gr_G', 'GroupG', 'LowSurfBrghtG',
@@ -26,35 +28,47 @@ def findClusters(saveToFile=False, name='clusterQuery.csv'):
     return clusters
 
 
-def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
+def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ, name):
     global previousQueryTime
 
-    # set up custom query and define which columns we want
-    customSimbad = Simbad()
-    customSimbad.TIMEOUT = 10
-    customSimbad.add_votable_fields('ra(s)', 'dec(s)',
-                                    'distance_result', 'otype', 'rv_value', 'z_value')
-    customSimbad.remove_votable_fields('coordinates')
+    clusterDir = "Data/GalaxySets/" + str(name) + ".csv"
 
-    my_radius = '0d' + str(int(majaxis)) + 'm0s'
+    if not os.path.exists(clusterDir):
+        # set up custom query and define which columns we want
+        print("querying server")
+        customSimbad = Simbad()
+        customSimbad.TIMEOUT = 10
 
-    currentQueryTime = time.time()
+        customSimbad.add_votable_fields('ra(s)', 'dec(s)',
+                                        'distance_result', 'otype', 'rv_value', 'z_value')
+        customSimbad.remove_votable_fields('coordinates')
 
-    if currentQueryTime - previousQueryTime < 3:
-        time.sleep(3 - currentQueryTime + previousQueryTime)
+        my_radius = '0d' + str(int(majaxis)) + 'm0s'
 
-    try:
-        table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)),
-                                          radius=my_radius)
-    except:
-        print("     ### Connection Timeout ###")
-        return
+        currentQueryTime = time.time()
 
-    if table is None or len(table) == 0:
-        return
+        if currentQueryTime - previousQueryTime < 3:
+            time.sleep(3 - currentQueryTime + previousQueryTime)
 
-    df = table.to_pandas()
-    previousQueryTime = currentQueryTime
+        try:
+            table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)),
+                                              radius=my_radius)
+        except:
+            print("     ### Connection Timeout ###")
+            time.sleep(20)
+            table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)),
+                                              radius=my_radius)
+
+        if table is None or len(table) == 0:
+            return
+
+        df = table.to_pandas()
+        previousQueryTime = currentQueryTime
+        df.to_csv(clusterDir)
+
+    else:
+        print("Found file")
+        df = pd.read_csv(clusterDir)
 
     # Clean up data
 
@@ -71,5 +85,5 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ):
     gal_df = gal_df[np.abs(gal_df['Z_VALUE'] - clusterZ) <= redshiftDifferenceCutoff]
 
     # print(pd.Series({c: df[c].unique() for c in df})['OTYPE'])
-
+    
     return gal_df

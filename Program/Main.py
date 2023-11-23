@@ -137,7 +137,9 @@ for i in clustersSet.index:
     galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
                                                clustersSet['DEC'][i],
                                                clustersSet['GALDIM_MAJAXIS'][i],
-                                               clustersSet['Z_VALUE'][i])
+                                               clustersSet['Z_VALUE'][i],
+                                               clustersSet['MAIN_ID'][i])
+
 
     if galaxiesInCluster is None:
         print("\nCluster Data is empty!")

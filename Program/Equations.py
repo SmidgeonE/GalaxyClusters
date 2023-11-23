@@ -45,8 +45,6 @@ def rho_z(z, omega_M):
 
 
 def H(z, omega_M):
-    print("In H, the omega value is " + str(omega_M))
-    # print("H_z :" + str(H_0 * np.sqrt(Omega_M * (1+z)**3 + Omega_L) * 3.08568E22 * 1000))
     return H_0 * np.sqrt(omega_M * (1 + z) ** 3 + (1-omega_M)) / 3.08568E22 * 1000
 
 
