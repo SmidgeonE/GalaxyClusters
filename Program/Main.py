@@ -117,7 +117,7 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 
     # If the Chi value is too large, we will ignore this data set
 
-    if reducedChi > 1.5:
+    if reducedChi > 0.8:
         return np.nan
 
     return Omega_m
@@ -133,6 +133,7 @@ omega_M = np.zeros(len(clustersSet.index))
 for i in clustersSet.index:
     # if clustersSet['MAIN_ID'][i] != "ACO  2029":
     #     continue
+    print("currently reading cluster " + str(i))
 
     galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
                                                clustersSet['DEC'][i],
@@ -164,4 +165,6 @@ print("\nFinished Queries")
 print("Final Results: ")
 print("--- Overall Omega_M: " + str(np.nanmean(omega_M)))
 print("--- Overall Omega_M standard deviation: " + str(np.nanstd(omega_M)))
+print("--- Number of Clusters Analysed: " + str(len(clustersSet.index)))
+print("--- Number of Clusters Accepted: " + str(sum(~np.isnan(omega_M))))
 

@@ -2,7 +2,7 @@
 
 G = 6.67408E-11
 H_0 = 67.80
-Omega_M = 0.15
+Omega_M = 0.3
 Omega_L = 1-Omega_M
 h = H_0 / 100
 M_sun = 2E30
