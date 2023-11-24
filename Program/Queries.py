@@ -12,16 +12,17 @@ acceptableTypes = ['GinPair', 'Galaxy', 'Compact_Gr_G', 'GroupG', 'LowSurfBrghtG
                    'Seyfert', 'Seyfert1', 'Seyfert2', 'LINER', 'QSO', 'Blazar', 'BLLac']
 
 
-def findClusters(saveToFile=False, name='clusterQuery.csv'):
+def findClusters(saveToFile=False, name='clusterQuery.csv', numOfChildren=100):
     # Setting up query fields required
 
     customSimbad = Simbad()
+    customSimbad.TIMEOUT = 1000
     customSimbad.add_votable_fields('z_value', 'ra', 'dec', 'dim_majaxis', 'dim_minaxis')
     customSimbad.remove_votable_fields('coordinates')
-    qry = "children > 100 & otypes in ('ClG')"
+    qry = "children > " + str(numOfChildren) + " & otypes in ('ClG')"
     clusters = customSimbad.query_criteria(qry).to_pandas()
     clusters = clusters.dropna()
-    customSimbad.TIMEOUT = 1000
+
 
     if saveToFile:
         clusters.to_csv(name)
