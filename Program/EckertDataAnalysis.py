@@ -104,27 +104,53 @@ def AnalyseData(newOmega_M=Omega_M):
     print("Standard Dev of Omega_M :" + str(stdOmegaM))
     print("Monte Carlo Error for Omega_M : " + str(mcError))
 
-    return meanOmegaM, stdOmegaM, mcError
+    return Omega_MVals, MCErrors
 
 
 def VaryOmegaM():
     rangeOfOmegaM = np.linspace(0.05, 0.9, 10)
-    results = np.zeros((10, 3))
+    results = np.zeros((10, 10))
+    errors = np.zeros((10, 10))
 
     for i, val in enumerate(rangeOfOmegaM):
-        results[i, :] = AnalyseData(newOmega_M=val)
+        results[i, :], errors[i, :] = AnalyseData(newOmega_M=val)
 
-    pd.DataFrame(results).to_csv("Data/variedOmegaM.csv")
+    pd.DataFrame(results).to_csv("Data/variedOmegaMAllVals.csv")
+    pd.DataFrame(errors).to_csv("Data/variedOmegaMAllValsErrs.csv")
+
 
 
 plt.style.use(['science', 'notebook', 'grid'])
-results = pd.read_csv("Data/variedOmegaM.csv")
 
-plt.errorbar(np.linspace(0.05, 0.9, 10), results['0'], marker='x', capsize=5, yerr=results['2'])
-plt.ylabel(r'$\Omega_{m}$ Calculated')
-plt.xlabel(r'$\Omega_{m}$ Assumed')
-plt.title(r'$\Omega_{m}$ Calculated against the assumed value.')
-plt.show()
+def PlotOverallOmegaM():
+    results = pd.read_csv("Data/variedOmegaM.csv")
+
+    plt.errorbar(np.linspace(0.05, 0.9, 10), results['0'], marker='x', capsize=5, yerr=results['2'])
+    plt.ylabel(r'$\Omega_{m}$ Calculated')
+    plt.xlabel(r'$\Omega_{m}$ Assumed')
+    plt.title(r'$\Omega_{m}$ Calculated against the assumed value.')
+    plt.show()
+
+
+def PlotEachOmegaMVal():
+    results = pd.read_csv("Data/variedOmegaMAllVals.csv")
+    errors = pd.read_csv("Data/variedOmegaMAllValsErrs.csv")
+    names = ['A1644', 'A1795', 'A2029', 'A2142', 'A2255', 'A2319', 'A3158', 'A3266', 'A644', 'A85']
+
+    for i, val in results.iterrows():
+        if i % 2 == 0:
+            continue
+            
+        plt.errorbar(np.array(names), results.iloc[i].values[1:],
+                     marker='x', capsize=5, yerr=errors.iloc[i].values[1:], alpha=0.7)
+    plt.ylabel(r'$\Omega_{m}$ Calculated')
+    plt.xlabel(r'$\Omega_{m}$ Assumed')
+    plt.xticks(rotation=45, fontsize=13)
+    plt.title(r'$\Omega_{m}$ Calculated For Abell Clusters')
+    plt.show()
+
+
+PlotEachOmegaMVal()
 
 
 

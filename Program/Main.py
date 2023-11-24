@@ -153,7 +153,7 @@ for i in clustersSet.index:
         print("------------------------\n")
         continue
 
-    omega_M[i] = CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=True)
+    omega_M[i] = CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=False)
     print("------------------------\n")
 
 

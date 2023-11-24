@@ -37,7 +37,7 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ, name):
         # set up custom query and define which columns we want
         print("querying server")
         customSimbad = Simbad()
-        customSimbad.TIMEOUT = 10
+        customSimbad.TIMEOUT = 30
 
         customSimbad.add_votable_fields('ra(s)', 'dec(s)',
                                         'distance_result', 'otype', 'rv_value', 'z_value')
@@ -55,7 +55,7 @@ def getGalaxiesFromCluster(ra, dec, majaxis, clusterZ, name):
                                               radius=my_radius)
         except:
             print("     ### Connection Timeout ###")
-            time.sleep(20)
+            time.sleep(30)
             table = customSimbad.query_region(coord.SkyCoord(ra, dec, unit=(u.hourangle, u.deg)),
                                               radius=my_radius)
 
