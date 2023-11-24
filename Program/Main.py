@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import Program.MonteCarlo as mc
 from Program.bootstrap import BootstrapErr
+import scienceplots
+
+plt.style.use(['science', 'notebook', 'grid'])
 
 
 def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
@@ -117,54 +120,90 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 
     # If the Chi value is too large, we will ignore this data set
 
-    if reducedChi > 0.8:
+    if reducedChi > 1.6:
         return np.nan
 
     return Omega_m
 
 
+def RunAnalysisForSet(clusterDir):
+    clustersSet = pd.read_csv(clusterDir)
+    omega_M = np.zeros(len(clustersSet.index))
+
+    for i in clustersSet.index:
+        # if clustersSet['MAIN_ID'][i] != "ACO  2029":
+        #     continue
+        print("currently reading cluster " + str(i))
+
+        galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
+                                                   clustersSet['DEC'][i],
+                                                   clustersSet['GALDIM_MAJAXIS'][i],
+                                                   clustersSet['Z_VALUE'][i],
+                                                   clustersSet['MAIN_ID'][i])
+
+        if galaxiesInCluster is None:
+            print("\nCluster Data is empty!")
+            print("------------------------\n")
+            continue
+
+        if len(galaxiesInCluster.index) < 20:
+            print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i] +
+                                                                          ". \nNum of galaxies in cluster:"))
+            print(str(len(galaxiesInCluster.index)))
+            print("------------------------\n")
+            continue
+
+        omega_M[i] = CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=False)
+        print("------------------------\n")
+
+    # If we skipped over some values, we need to ensure we're not counting the leftover zeros
+    omega_M = omega_M[omega_M != 0]
+
+    print("\nFinished Queries")
+    print("Final Results: ")
+    print("--- Overall Omega_M: " + str(np.nanmean(omega_M)))
+    print("--- Overall Omega_M standard deviation: " + str(np.nanstd(omega_M)))
+    print("--- Number of Clusters Analysed: " + str(len(clustersSet.index)))
+    print("--- Number of Clusters Accepted: " + str(sum(~np.isnan(omega_M))))
+
+    return np.nanmean(omega_M), np.nanstd(omega_M), len(clustersSet.index), sum(~np.isnan(omega_M))
+
+
 ## MAIN PROGRAM LOOP
 
 
-# clustersSet = pd.read_csv('Data/clusterQuery.csv')
-clustersSet = pd.read_csv('Data/clusterQuery100children.csv')
-omega_M = np.zeros(len(clustersSet.index))
-
-for i in clustersSet.index:
-    # if clustersSet['MAIN_ID'][i] != "ACO  2029":
-    #     continue
-    print("currently reading cluster " + str(i))
-
-    galaxiesInCluster = getGalaxiesFromCluster(clustersSet['RA'][i],
-                                               clustersSet['DEC'][i],
-                                               clustersSet['GALDIM_MAJAXIS'][i],
-                                               clustersSet['Z_VALUE'][i],
-                                               clustersSet['MAIN_ID'][i])
+dirs = ["Data/clusterQuery20children.csv",
+        "Data/clusterQuery21children.csv",
+        "Data/clusterQuery40children.csv",
+        "Data/clusterQuery50children.csv",
+        "Data/clusterQuery100children.csv",
+        "Data/clusterQuery1children.csv",
+        "Data/clusterQuery0children.csv"]
 
 
-    if galaxiesInCluster is None:
-        print("\nCluster Data is empty!")
-        print("------------------------\n")
-        continue
+def OmegaMValsPlotting():
+    # This was using cutoff chi = 0.8
 
-    if len(galaxiesInCluster.index) < 20:
-        print("\nInsufficient Number of galaxies in cluster : " + str(clustersSet['MAIN_ID'][i] +
-                                                                      ". \nNum of galaxies in cluster:"))
-        print(str(len(galaxiesInCluster.index)))
-        print("------------------------\n")
-        continue
+    # resultsForDataSets = np.zeros((len(dirs), 4))
+    #
+    # for i, d in enumerate(dirs):
+    #     resultsForDataSets[i, :] = RunAnalysisForSet(d)
 
-    omega_M[i] = CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=False)
-    print("------------------------\n")
+    dfBetterChi = pd.read_csv("Data/Results/OmegaMForChi0.8.csv")
+    dfWorseChi = pd.read_csv("Data/Results/OmegaMForChi1.6.csv")
+
+    # Changing to string array for better axis spacing
+    strings = []
+    for item in dfBetterChi["numChildren"].values:
+        strings.append(str(item))
+
+    plt.errorbar(strings, dfBetterChi["OmegaM"].values, marker='x', capsize=5, yerr=dfBetterChi['sd'], alpha=0.7)
+    plt.errorbar(strings, dfWorseChi["OmegaM"].values, marker='x', capsize=5, yerr=dfWorseChi['sd'], alpha=0.7)
+    plt.plot()
+    plt.ylabel(r'$\Omega_{M}$')
+    plt.xlabel('Number of Children Required')
+    plt.legend([r"$\chi < 0.8$", r"$\chi < 1.6$"])
+    plt.show()
 
 
-# If we skipped over some values, we need to ensure we're not counting the leftover zeros
-omega_M = omega_M[omega_M != 0]
-
-print("\nFinished Queries")
-print("Final Results: ")
-print("--- Overall Omega_M: " + str(np.nanmean(omega_M)))
-print("--- Overall Omega_M standard deviation: " + str(np.nanstd(omega_M)))
-print("--- Number of Clusters Analysed: " + str(len(clustersSet.index)))
-print("--- Number of Clusters Accepted: " + str(sum(~np.isnan(omega_M))))
-
+OmegaMValsPlotting()

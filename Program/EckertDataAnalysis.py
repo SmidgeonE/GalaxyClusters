@@ -34,7 +34,7 @@ cutoffLower = [0.0325, 0.055, 0.07, 0.08, 0.0725, 0.0425, 0.05, 0.05, 0.05, 0.04
 # print(np.std(Omega_m))
 
 
-def AnalyseData(newOmega_M=Omega_M):
+def AnalyseData(newOmega_M=Omega_M, showPlot=False):
     for i, row in df.iterrows():
         clusterDir = "Data/GalaxySets/" + str(row['Name']) + ".csv"
 
@@ -89,12 +89,13 @@ def AnalyseData(newOmega_M=Omega_M):
 
         # Now we generate some graphs of the cluster
 
-        fig2, ax2 = plt.subplots(1, 1)
-        ax2.hist(galaxiesInCluster['Z_VALUE'], bins=numHistBins)
-        ax2.set_ylabel('num')
-        ax2.set_xlabel('Z_VALUE')
-        ax2.set_title('Z Values for ' + row['Name'])
-        # plt.show()
+        if showPlot:
+            fig2, ax2 = plt.subplots(1, 1)
+            ax2.hist(galaxiesInCluster['Z_VALUE'], bins=numHistBins)
+            ax2.set_ylabel('num')
+            ax2.set_xlabel('Z_VALUE')
+            ax2.set_title('Z Values for ' + row['Name'])
+            plt.show()
 
 
     meanOmegaM = np.nanmean(Omega_MVals)
@@ -122,6 +123,7 @@ def VaryOmegaM():
 
 plt.style.use(['science', 'notebook', 'grid'])
 
+
 def PlotOverallOmegaM():
     results = pd.read_csv("Data/variedOmegaM.csv")
 
@@ -138,20 +140,27 @@ def PlotEachOmegaMVal():
     names = ['A1644', 'A1795', 'A2029', 'A2142', 'A2255', 'A2319', 'A3158', 'A3266', 'A644', 'A85']
 
     for i, val in results.iterrows():
-        if i % 2 == 0:
+        if i != 0 and i != 9:
             continue
             
         plt.errorbar(np.array(names), results.iloc[i].values[1:],
-                     marker='x', capsize=5, yerr=errors.iloc[i].values[1:], alpha=0.7)
-    plt.ylabel(r'$\Omega_{m}$ Calculated')
-    plt.xlabel(r'$\Omega_{m}$ Assumed')
+                     marker='x', capsize=5, yerr=errors.iloc[i].values[1:], alpha=0.7, ls='none')
+
+    plt.legend([r"$\Omega_{M}$ = 0.05", r"$\Omega_{M}$ = 0.9"])
+
+    # Plotting error bars
+    plt.plot(np.array(names), np.ones(len(names)) * 0.333, color='black')
+    plt.plot(np.array(names), np.ones(len(names)) * (0.333 + 0.13), color='black', linestyle='--', alpha=0.7)
+    plt.plot(np.array(names), np.ones(len(names)) * (0.333 - 0.13), color='black', linestyle='--', alpha=0.7)
+
+    plt.ylabel(r'$\Omega_{M}$ Calculated')
+    plt.xlabel(r'$\Omega_{M}$ Assumed')
     plt.xticks(rotation=45, fontsize=13)
-    plt.title(r'$\Omega_{m}$ Calculated For Abell Clusters')
+    plt.title(r'$\Omega_{M}$ Calculated For Abell Clusters')
     plt.show()
 
 
 PlotEachOmegaMVal()
-
 
 
 
