@@ -120,15 +120,18 @@ def CalculateAndPlotOmegaM(galaxiesOfCluster, nameOfGalaxy, makeGraphs=False):
 
     # If the Chi value is too large, we will ignore this data set
 
-    if reducedChi > 1.6:
-        return np.nan
+    if reducedChi > 0.8:
+        return np.nan, np.nan, np.nan, np.nan
 
-    return Omega_m
+    return Omega_m, mc.OmegaMErrorGeneral(f_ourGas, f_ourGasErr), M_200val, M_200err
 
 
-def RunAnalysisForSet(clusterDir):
+def RunAnalysisForSet(clusterDir, returnRawVals=False):
     clustersSet = pd.read_csv(clusterDir)
     omega_M = np.zeros(len(clustersSet.index))
+    omega_Merrs = np.zeros(len(clustersSet.index))
+    M_200 = np.zeros(len(clustersSet.index))
+    M_200err = np.zeros(len(clustersSet.index))
 
     for i in clustersSet.index:
         # if clustersSet['MAIN_ID'][i] != "ACO  2029":
@@ -153,11 +156,14 @@ def RunAnalysisForSet(clusterDir):
             print("------------------------\n")
             continue
 
-        omega_M[i] = CalculateAndPlotOmegaM(galaxiesInCluster, nameOfGalaxy=clustersSet['MAIN_ID'][i], makeGraphs=False)
+
+        omega_M[i], omega_Merrs[i], M_200[i], M_200err[i] = CalculateAndPlotOmegaM(galaxiesInCluster,
+                                            nameOfGalaxy=clustersSet['MAIN_ID'][i],
+                                            makeGraphs=False)
         print("------------------------\n")
 
     # If we skipped over some values, we need to ensure we're not counting the leftover zeros
-    omega_M = omega_M[omega_M != 0]
+    omega_M[omega_M == 0] = np.nan
 
     print("\nFinished Queries")
     print("Final Results: ")
@@ -166,22 +172,28 @@ def RunAnalysisForSet(clusterDir):
     print("--- Number of Clusters Analysed: " + str(len(clustersSet.index)))
     print("--- Number of Clusters Accepted: " + str(sum(~np.isnan(omega_M))))
 
-    return np.nanmean(omega_M), np.nanstd(omega_M), len(clustersSet.index), sum(~np.isnan(omega_M))
+    if returnRawVals:
+        return omega_M, omega_Merrs, M_200, M_200err
+
+    return np.nanmean(omega_M), np.nanstd(omega_M), \
+           len(clustersSet.index), sum(~np.isnan(omega_M))
+
+
 
 
 ## MAIN PROGRAM LOOP
 
 
-dirs = ["Data/clusterQuery20children.csv",
+dirs = ["Data/clusterQuery0children.csv",
+        "Data/clusterQuery1children.csv",
+        "Data/clusterQuery20children.csv",
         "Data/clusterQuery21children.csv",
         "Data/clusterQuery40children.csv",
         "Data/clusterQuery50children.csv",
-        "Data/clusterQuery100children.csv",
-        "Data/clusterQuery1children.csv",
-        "Data/clusterQuery0children.csv"]
+        "Data/clusterQuery100children.csv"]
 
 
-def OmegaMValsPlotting():
+def PlotOmegaMAgainstChiAndChildren():
     # This was using cutoff chi = 0.8
 
     # resultsForDataSets = np.zeros((len(dirs), 4))
@@ -199,11 +211,20 @@ def OmegaMValsPlotting():
 
     plt.errorbar(strings, dfBetterChi["OmegaM"].values, marker='x', capsize=5, yerr=dfBetterChi['sd'], alpha=0.7)
     plt.errorbar(strings, dfWorseChi["OmegaM"].values, marker='x', capsize=5, yerr=dfWorseChi['sd'], alpha=0.7)
-    plt.plot()
     plt.ylabel(r'$\Omega_{M}$')
     plt.xlabel('Number of Children Required')
     plt.legend([r"$\chi < 0.8$", r"$\chi < 1.6$"])
     plt.show()
 
 
-OmegaMValsPlotting()
+def PlotOmegaMAgainstMass():
+    data = pd.read_csv("Data/Results/OmegaMAgainstMtot.csv").transpose()
+    plt.errorbar(data[0][1:], data[2][1:] / 10E46, marker='x', capsize=5, yerr=data[3][1:] / 10E46, xerr=data[1][1:], alpha=0.7)
+    plt.ylabel(r'$M_{tot} / kg / 10^{46}$')
+    plt.xlabel(r'$\Omega_{M}$')
+    plt.legend([r"$\chi < 0.8$"])
+    plt.show()
+
+PlotOmegaMAgainstMass()
+
+
