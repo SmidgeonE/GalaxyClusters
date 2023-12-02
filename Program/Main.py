@@ -219,9 +219,9 @@ def PlotOmegaMAgainstChiAndChildren():
 
 def PlotOmegaMAgainstMass():
     data = pd.read_csv("Data/Results/OmegaMAgainstMtot.csv").transpose()
-    plt.errorbar(data[0][1:], data[2][1:] / 10E46, marker='x', capsize=5, yerr=data[3][1:] / 10E46, xerr=data[1][1:], alpha=0.7)
-    plt.ylabel(r'$M_{tot} / kg / 10^{46}$')
-    plt.xlabel(r'$\Omega_{M}$')
+    plt.errorbar(data[2][1:] / 10E46, data[0][1:], marker='x', capsize=5, yerr=data[1][1:], xerr=data[3][1:] / 10E46, alpha=0.7)
+    plt.ylabel(r'$\Omega_{M}$')
+    plt.xlabel(r'$M_{tot} / kg / 10^{46}$')
     plt.legend([r"$\chi < 0.8$"])
     plt.show()
 
